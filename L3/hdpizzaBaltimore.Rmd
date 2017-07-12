@@ -1,0 +1,145 @@
+---
+title: "Hot Dogs and Pizza in Baltimore"
+output:   
+  github_document:
+    toc: true
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###Downloading Data
+
+  First of all, download the file to your pc
+
+```{r}
+vendors <- "https://data.baltimorecity.gov/api/views/bqw3-z52q/rows.csv?accessType=DOWNLOAD"
+dir.create("./TempData")
+download.file(vendors,destfile = "./TempData/BFood.csv")
+if (file.exists("./TempData/BFood.csv"))
+{
+  tam <- file.info("./TempData/BFood.csv")$size
+  paste("File downloaded, ",tam," bytes")
+} else
+{
+  "Error downloading file!"
+}
+```
+
+###Importing CSV Table
+  
+  Now import the csv file to R environment (DataFrame Format).
+
+```{r}
+bVendors <- read.csv(file="./TempData/BFood.csv", header=TRUE, sep=",", stringsAsFactors=FALSE)
+str(bVendors)
+```
+
+###Eliminating unusable variables
+
+  If you check bVendors DataFrame, there will be some unmeaningful variables like bVendors$Id. So you can remove it.
+
+```{r}  
+#Turning LicenseNum to Factor
+bVendors$LicenseNum <- as.factor(bVendors$LicenseNum)
+
+bVendors$Id
+bVendors$Id <- NULL
+bVendors$St <- NULL
+  
+```
+
+###Changing variable names
+  
+  Location.1 is not a good name for a variable, let's change it to just "location".
+  
+```{r} 
+
+names(bVendors)[names(bVendors) == "Location.1"] <- "location"
+str(bVendors)
+   
+```
+
+###Extracting Latitude and Longitude from laction
+
+  Latitude and Longitude is a very important data, it should be in it's own variable.
+  
+  Let's extract it from location using Regular Expression.
+  
+```{r} 
+#regex match for coordinates
+tempS <- regmatches(bVendors$location,gregexpr("[0-9.]+",bVendors$location))
+lats <- vector(length = nrow(bVendors),mode = "numeric")
+longs <- vector(length = nrow(bVendors),mode = "numeric")
+
+#for each row, extract the lat and long
+for(i in 1:nrow(bVendors)) 
+{
+  lats[i] <- as.numeric(tempS[[i]][2])
+  longs[i] <- as.numeric(tempS[[i]][3])
+}
+
+#adding to bVendors Data Set
+bVendors$lat <- lats
+bVendors$long <- longs
+str(bVendors)
+
+head(subset(bVendors, select = c(location,lat,long)))
+  
+```
+
+### Hot Dogs!
+
+  What can i do to check which vendors sells hot dogs in baltimore?
+  
+  You can check in the variable ItemsSold if the vendor have Hot dog, using grepl
+  
+```{r}
+bVendors$hotdog <- grepl("Hot dog",bVendors$ItemsSold)
+head(subset(bVendors, select = c(ItemsSold,hotdog)))
+```
+
+  Ok... 
+  The vendor sells "Hot Dogs".
+  How can we ensure that all variations of "hot dogs" are represented?
+  
+  Turning ItemsSold to lower case and looking for "hot dog"!
+  
+  
+```{r}
+bVendors$ItemsSold = tolower(bVendors$ItemsSold)
+
+
+bVendors$hotdog <- grepl("hot dog",bVendors$ItemsSold)
+head(subset(bVendors, select = c(ItemsSold,hotdog)))
+```
+
+### If you preffer pizza, then...
+
+Just create the pizza variable
+
+```{r}
+bVendors$pizza <- grepl("pizza",bVendors$ItemsSold)
+head(subset(bVendors, select = c(ItemsSold,pizza)))
+
+```
+
+###Getting city names
+
+using string split with regex, you can get the city names
+
+```{r}
+city = c()
+
+for(i in 1:nrow(bVendors)) 
+{
+  city[i] <- strsplit(bVendors$location[i], split = "(?<=[a-zA-Z])\\s*(?=[0-9])", perl = TRUE)[[1]][1]
+}
+  city = unlist(city)
+  
+  bVendors$city = city
+  
+  bVendors$city
+```
