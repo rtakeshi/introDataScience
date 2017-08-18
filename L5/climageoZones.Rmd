@@ -1,0 +1,100 @@
+---
+title: "Climatic and Geological Zones"
+output:   
+  github_document:
+    toc: true
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+###Libraries
+
+  sqldf is a library to use R data.frames as SQL table.
+  
+```{r}
+library(sqldf)
+```
+
+
+###Importing covtype.csv and soiltype.csv
+
+  Suposing that covtype.csv is in current directory
+
+```{r}
+    covtype <- read.csv("covTypev1.csv", sep=",", stringsAsFactors=FALSE)
+```
+
+  Using a temporary variable to hold SoilType codes 
+
+```{r}
+code <- covtype$SoilType
+code <- gsub("ST0", "", code)
+code <- gsub("ST", "", code)
+
+soiltype <- data.frame(code)
+
+```
+
+  SoilType informations can be found in the information file of covtype data
+  
+  https://archive.ics.uci.edu/ml/machine-learning-databases/covtype/covtype.info
+  
+  
+  Suposing that information data was already extracted from information file, import  SoilType file
+  
+  
+
+```{r}
+
+  soilindex <- read.csv("soiltype.csv", header=FALSE, sep=",", stringsAsFactors=FALSE)
+
+``` 
+
+### Selecting and manipulating data
+
+Extracting data from SoilType to the main Data Frame (covtype)
+
+```{r}
+
+  #Joining ELU code to covtype data.frame using sqldf
+  elu <- sqldf('select soilindex.V2 from soiltype left outer join soilindex on soiltype.code = soilindex.V1')
+  
+  covtype$elu <- unlist(lapply(elu$V2, as.character))
+  str(covtype)
+  
+``` 
+
+Extracting codes to Climatic Zones and Geological Zones and Importing Data From information file
+
+```{r}
+
+climazone <- substring(covtype$elu, first =1, last = 1)
+geozone <- substring(covtype$elu, first =2, last = 2)
+
+#adding to covtype data.frame
+covtype$clicode <- unlist(climazone)
+covtype$geocode <- unlist(geozone)
+
+
+climazone <- read.csv("climazone.csv", header=FALSE, sep=",", stringsAsFactors=FALSE)
+geozone <- read.csv("geozone.csv", header=FALSE, sep=",", stringsAsFactors=FALSE)
+
+``` 
+
+Selecting Data to the main Data Frame
+
+```{r}
+climazone <- sqldf('select climazone.V2 from covtype left outer join climazone on covtype.clicode = climazone.V1')
+geozone <- sqldf('select geozone.V2 from covtype left outer join geozone on covtype.geocode = geozone.V1')
+
+covtype$clizone <- unlist(climazone)
+covtype$geozone <- unlist(geozone)
+
+head(covtype)
+``` 
+
+Done!
+
+
