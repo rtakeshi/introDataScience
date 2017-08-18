@@ -1,0 +1,25 @@
+  FORMAT OF THE SUBSETTED FILE
+    
+    ITEMS                      FORMAT   
+     
+ 1 Year                          I4        
+ 2 Day                           I4        
+ 3 Hour                          I3        
+ 4 Minute                        I3        
+ 5 Field magnitude average, nT   F8.2      
+ 6 BX, nT (GSE, GSM)             F8.2      
+ 7 BY, nT (GSM)                  F8.2      
+ 8 BZ, nT (GSM)                  F8.2      
+ 9 Speed, km/s                   F8.1      
+10 Vx Velocity,km/s              F8.1      
+11 Proton Density, n/cc          F7.2      
+12 Temperature, K                F9.0      
+13 Flow pressure, nPa            F6.2      
+14 Electric field, mV/m          F7.2      
+15 Total Plasma beta             F7.2      
+16 AE-index, nT                  I6        
+17 SYM/H, nT                     I6        
+18 ASY/H, nT                     I6        
+19 PCN-index                     F7.2      
+
+This file was produced by SPDF OMNIWeb Plus service
