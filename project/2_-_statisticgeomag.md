@@ -34,12 +34,22 @@ boxplot(data$bz, main="Bz",las=2)
 ![](2_-_statisticgeomag_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-2-1.png)
 
 ``` r
-par(mfrow=c(1,2),mar=c(6,3,2,1))
-boxplot(data$ae, main="AE",las=2)
-boxplot(data$symh, main="Sym-H",las=2)
+par(mfrow=c(1,3),mar=c(6,3,2,1))
+boxplot(data$vxvel, main="Velocity",las=2)
+boxplot(data$pd, main="Proton Density",las=2)
+boxplot(data$temp, main="Temperature",las=2)
 ```
 
 ![](2_-_statisticgeomag_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
+
+``` r
+par(mfrow=c(1,3),mar=c(6,3,2,1))
+boxplot(data$ae, main="AE",las=2)
+boxplot(data$symh, main="Sym-H",las=2)
+boxplot(data$asyh, main="Asy-H",las=2)
+```
+
+![](2_-_statisticgeomag_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
 
 ### References
 
